@@ -4,59 +4,159 @@
     <title>My Image Gallery</title>
     <style>
         body {
-            font-family: Arial;
             margin: 0;
-            padding: 20px;
-            background: #f4f4f4;
+            padding: 40px 24px;
+            background: #f5f1e8;
+            font-family: Georgia, 'Times New Roman', serif;
+            color: #2f2a20;
         }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         h1 {
             text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin: 0 0 28px;
+            color: #3a3123;
         }
+
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
         }
+
         .gallery img {
             width: 100%;
-            border-radius: 10px;
-            transition: 0.3s;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 6px 14px rgba(47, 42, 32, 0.12);
+            background: #e8dfca;
         }
+
         .gallery img:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 18px rgba(47, 42, 32, 0.18);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(18, 15, 10, 0.92);
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1.6rem;
+            cursor: pointer;
+            border-radius: 50%;
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Social Media Posters</h1>
+        <div class="gallery" id="gallery"></div>
+    </div>
 
-<h1>My Image Gallery</h1>
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModal" aria-label="Close image">&times;</button>
+            <img id="modalImage" src="" alt="Project preview">
+        </div>
+    </div>
 
-<div class="gallery">
-    <img src="resourse\IMG-20240923-WA0023(1).jpg">
-<img src="resourse\IMG-20240923-WA0024(1).jpg">
-<img src="resourse\IMG-20241002-WA0021.jpg">
-<img src="resourse\IMG-20241016-WA0021.jpg">
-<img src="resourse\IMG-20241028-WA0003.jpg">
-<img src="resourse\IMG-20241106-WA0006.jpg">
-<img src="resourse\IMG-20241113-WA0002(1).jpg">
-<img src="resourse\IMG-20241214-WA0011.jpg">
-<img src="resourse\IMG-20250102-WA0015.jpg">
-<img src="resourse\IMG-20250106-WA0000.jpg">
-<img src="resourse\IMG-20250106-WA0001.jpg">
-<img src="resourse\IMG-20250106-WA0002.jpg">
-<img src="resourse\IMG-20250106-WA0004.jpg">
-<img src="resourse\IMG-20250212-WA0009.jpg">
-<img src="resourse\IMG-20250213-WA0008.jpg">
-<img src="resourse\IMG-20250213-WA0009.jpg">
-<img src="resourse\IMG-20250213-WA0011.jpg">
-<img src="resourse\IMG-20250213-WA0012.jpg">
-<img src="resourse\IMG-20250213-WA0013.jpg">
-<img src="resourse\IMG-20250218-WA0006(1).jpg">
-<img src="resourse\IMG-20250218-WA0006.jpg">
-<img src="resourse\IMG-20250224-WA0008.jpg">
-<img src="resourse\IMG-20250225-WA0014.jpg">
-<img src="resourse\smo copy.jpg">
-</div>
+    <script>
+        const gallery = document.getElementById('gallery');
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const closeModal = document.getElementById('closeModal');
 
+        async function loadImages() {
+            try {
+                const response = await fetch('./images.json');
+                const images = await response.json();
+
+                images.forEach((imagePath) => {
+                    const safeImagePath = encodeURI(imagePath);
+                    const img = document.createElement('img');
+                    img.src = safeImagePath;
+                    img.alt = imagePath.split('/').pop();
+                    img.loading = 'lazy';
+                    img.addEventListener('click', () => {
+                        modalImage.src = safeImagePath;
+                        modal.classList.add('show');
+                    });
+                    gallery.appendChild(img);
+                });
+            } catch (error) {
+                gallery.innerHTML = '<p>Unable to load images right now.</p>';
+                console.error(error);
+            }
+        }
+
+        function closeImageModal() {
+            modal.classList.remove('show');
+        }
+
+        closeModal.addEventListener('click', closeImageModal);
+
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeImageModal();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+
+        loadImages();
+    </script>
 </body>
 </html>

@@ -1,0 +1,11 @@
+{
+  "name": "image-gallery",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node api/images.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
